@@ -1,0 +1,28 @@
+#!/bin/bash
+export TORM_ENV=test
+test=$1
+filter=$2
+
+for file in $(find -maxdepth 1 -iname '*.php' -type f)
+do
+   if [ -n "$test" -a "$file" != "./$test" ]; then 
+      continue
+   fi
+
+   echo "running $file ..."
+   if [ -n "$filter" ]; then
+      phpunit --colors --debug --filter "$filter" $file
+   else
+      phpunit --colors --debug $file
+   fi
+
+   rst=$?
+   echo "test result: $rst errors"
+
+   if [ "$rst" != "0" ]; then
+      echo "*****************************************************************";
+      echo "Failed!"
+      echo "*****************************************************************";
+      exit 1
+   fi
+done

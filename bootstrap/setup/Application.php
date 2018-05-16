@@ -35,6 +35,7 @@ class Application {
 
 		$this->bootstrapContainer();
 		$this->bootstrapRouter();
+		$this->bootstrapORM();
 	}
 
 	/**
@@ -61,6 +62,18 @@ class Application {
 		});
 
 		$this->route = $dispatcher->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+	}
+
+	/**
+	 * Bootstrap ORM
+	 *
+	 * @return void
+	 */
+	private function bootstrapORM()
+	{
+		$con = new \PDO(getenv('DB_DRIVER'). ':host=' . getenv('DB_HOST') . ';dbname=' . getenv('DB_NAME'), getenv('DB_USER'), getenv('DB_PASSWORD'));
+		\TORM\Connection::setConnection($con);
+		\TORM\Connection::setDriver("sqlite");
 	}
 
 	/**

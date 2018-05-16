@@ -15,11 +15,13 @@ class ComposerStaticInit5aad802115d56c6061f766fdeed98d43
         'T' => 
         array (
             'Twig\\' => 5,
+            'TORM\\' => 5,
         ),
         'P' => 
         array (
             'Psr\\Container\\' => 14,
             'PhpDocReader\\' => 13,
+            'PDOOCI\\' => 7,
         ),
         'I' => 
         array (
@@ -50,6 +52,10 @@ class ComposerStaticInit5aad802115d56c6061f766fdeed98d43
         array (
             0 => __DIR__ . '/..' . '/twig/twig/src',
         ),
+        'TORM\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/taq/torm/src',
+        ),
         'Psr\\Container\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
@@ -57,6 +63,10 @@ class ComposerStaticInit5aad802115d56c6061f766fdeed98d43
         'PhpDocReader\\' => 
         array (
             0 => __DIR__ . '/..' . '/php-di/phpdoc-reader/src/PhpDocReader',
+        ),
+        'PDOOCI\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/taq/pdooci/src',
         ),
         'Invoker\\' => 
         array (
