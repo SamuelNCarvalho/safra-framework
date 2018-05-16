@@ -74,7 +74,7 @@ class Application {
 	{
 		$con = new \PDO(getenv('DB_DRIVER'). ':host=' . getenv('DB_HOST') . ';dbname=' . getenv('DB_NAME'), getenv('DB_USER'), getenv('DB_PASSWORD'));
 		\TORM\Connection::setConnection($con);
-		\TORM\Connection::setDriver("sqlite");
+		\TORM\Connection::setDriver(getenv('DB_DRIVER'));
 	}
 
 	/**
