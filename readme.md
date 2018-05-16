@@ -6,7 +6,7 @@ A micro PHP Framework
 
 ## Installation
 
-To run this beta version, you need to clone it and install dependencies:
+To run this alpha version, you need to clone it and install dependencies:
 
 ```
 git clone https://github.com/SamuelNCarvalho/safra-framework.git safra
