@@ -1,5 +1,9 @@
 {
-    "name": "SamuelNCarvalho/safra-framework",
+	"name": "SamuelNCarvalho/safra-framework",
+	"description": "The Safra Framework",
+	"keywords": ["framework", "safra"],
+	"license": "MIT",
+    "type": "project",
     "authors": [
         {
             "name": "Samuel Carvalho",
