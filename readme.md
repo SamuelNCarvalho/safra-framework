@@ -4,7 +4,7 @@
 
 A micro PHP Framework
 
-## Instalation
+## Installation
 
 To run this beta version, you need to clone it and install dependencies:
 
