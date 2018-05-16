@@ -1,0 +1,21 @@
+{
+    "name": "samuel/my_framework",
+    "authors": [
+        {
+            "name": "Samuel Carvalho",
+            "email": "samuelneivacarvalho@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^2.4",
+        "php-di/php-di": "^5.4",
+        "twig/twig": "^1.35",
+        "nikic/fast-route": "^1.3"
+	},
+	"autoload": {
+        "psr-4": {
+			"Bootstrap\\Setup\\": "bootstrap/setup/",
+			"Controllers\\": "app/controllers/"
+        }
+    }
+}
