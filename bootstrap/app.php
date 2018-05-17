@@ -8,8 +8,8 @@ try {
 } catch (Dotenv\Exception\InvalidPathException $e) {}
 
 // setup application
-$app = new \SafraFramework\Application(realpath(__DIR__.'/../'));
+$app = Core\Application::getInstance();
+$app->setBasePath(realpath(__DIR__.'/../'));
 $app->addContainerDefinitions($app->getBasePath().'/bootstrap/config.php');
-
 
 return $app;

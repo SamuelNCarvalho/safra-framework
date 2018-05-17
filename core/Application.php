@@ -1,12 +1,19 @@
 <?php
 
-namespace SafraFramework;
+namespace Core;
 
 use DI\ContainerBuilder;
 use FastRoute\RouteCollector;
 use FastRoute\Dispatcher;
 
 class Application {
+
+	/**
+     * The current globally available container (if any).
+     *
+     * @var static
+     */
+    protected static $instance;
 
 	/**
 	 * Base path of application
@@ -27,24 +34,35 @@ class Application {
 	 *
 	 * @var array
 	 */
-	private $containerDefinitions;
+	private $containerDefinitions = [];
 
 	/**
 	 * Router
 	 *
-	 * @var [type]
+	 * @var Router
 	 */
-	private $route;
+	private $router;
 
-	public function __construct($basePath)
+	private function __construct()
 	{
-		$this->basePath = $basePath;
-
-		$this->setupBaseContainerDefinitions();
 		$this->bootstrapExceptionHandler();
-		$this->bootstrapRouter();
 		$this->bootstrapORM();
 	}
+
+
+	/**
+     * Set the globally available instance of the container.
+     *
+     * @return static
+     */
+    public static function getInstance()
+    {
+        if (is_null(static::$instance)) {
+            static::$instance = new static;
+        }
+
+        return static::$instance;
+    }
 
 	/**
 	 * Bootstrap DI container
@@ -55,11 +73,23 @@ class Application {
 	{
 		if (is_null($this->container)) {
 			$container = new ContainerBuilder;
+			$this->setupBaseContainerDefinitions();
 			$container->addDefinitions($this->containerDefinitions);
 			$this->container = $container->build();
 		}
 
 		return $this->container;
+	}
+
+	/**
+	 * Set base path
+	 *
+	 * @param string $basePath
+	 * @return void
+	 */
+	public function setBasePath($basePath)
+	{
+		$this->basePath = $basePath;
 	}
 
 	/**
@@ -77,13 +107,17 @@ class Application {
 	 *
 	 * @return void
 	 */
-	private function bootstrapRouter()
+	private function router()
 	{
-		$dispatcher = \FastRoute\simpleDispatcher(function (RouteCollector $route) {
-			require realpath(__DIR__.'/../../app/routes.php');
-		});
+		if (is_null($this->router)) {
+			$dispatcher = \FastRoute\simpleDispatcher(function (RouteCollector $route) {
+				require $this->getBasePath().'/app/routes.php';
+			});
 
-		$this->route = $dispatcher->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+			$this->router = $dispatcher->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+		}
+
+		return $this->router;
 	}
 
 	/**
@@ -117,7 +151,7 @@ class Application {
 	 */
 	private function setupBaseContainerDefinitions()
 	{
-		$this->containerDefinitions = [];
+		$this->containerDefinitions += [];
 	}
 
 	/**
@@ -142,7 +176,7 @@ class Application {
 	 */
 	public function response()
 	{
-		switch ($this->route[0]) {
+		switch ($this->router()[0]) {
 			case Dispatcher::NOT_FOUND:
 				echo '404 Not Found';
 				break;
@@ -152,8 +186,8 @@ class Application {
 				break;
 
 			case Dispatcher::FOUND:
-				$handler = $this->route[1];
-				$vars = $this->route[2];
+				$handler = $this->router()[1];
+				$vars = $this->router()[2];
 
 				$this->container()->call($handler, $vars);
 				break;

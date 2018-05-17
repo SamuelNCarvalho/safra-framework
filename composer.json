@@ -20,9 +20,12 @@
 	},
 	"autoload": {
         "psr-4": {
-			"SafraFramework\\": "src/Safra/",
+			"Core\\": "core/",
 			"Controllers\\": "app/controllers/",
 			"Models\\": "app/models/"
-        }
+		},
+		"files": [
+			"core/helpers.php"
+		]
     }
 }
