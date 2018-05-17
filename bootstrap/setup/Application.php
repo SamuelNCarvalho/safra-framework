@@ -33,7 +33,6 @@ class Application {
 	{
 		$this->basePath = $basePath;
 
-		$this->bootstrapContainer();
 		$this->bootstrapExceptionHandler();
 		$this->bootstrapRouter();
 		$this->bootstrapORM();
@@ -44,11 +43,15 @@ class Application {
 	 *
 	 * @return void
 	 */
-	private function bootstrapContainer()
+	public function container()
 	{
-		$container = new ContainerBuilder;
-		$container->addDefinitions(realpath(__DIR__ . '/../config.php'));
-		$this->container = $container->build();
+		if (is_null($this->container)) {
+			$container = new ContainerBuilder;
+			$container->addDefinitions(realpath(__DIR__ . '/../config.php'));
+			$this->container = $container->build();
+		}
+
+		return $this->container;
 	}
 
 	/**
@@ -109,7 +112,7 @@ class Application {
 				$handler = $this->route[1];
 				$vars = $this->route[2];
 
-				$this->container->call($handler, $vars);
+				$this->container()->call($handler, $vars);
 				break;
 		}
 	}
