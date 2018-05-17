@@ -1,6 +1,6 @@
 <?php
 
-namespace Bootstrap\Setup;
+namespace SafraFramework;
 
 use DI\ContainerBuilder;
 use FastRoute\RouteCollector;
@@ -23,6 +23,13 @@ class Application {
 	private $container;
 
 	/**
+	 * DI Container definitions
+	 *
+	 * @var array
+	 */
+	private $containerDefinitions;
+
+	/**
 	 * Router
 	 *
 	 * @var [type]
@@ -33,6 +40,7 @@ class Application {
 	{
 		$this->basePath = $basePath;
 
+		$this->setupBaseContainerDefinitions();
 		$this->bootstrapExceptionHandler();
 		$this->bootstrapRouter();
 		$this->bootstrapORM();
@@ -47,11 +55,21 @@ class Application {
 	{
 		if (is_null($this->container)) {
 			$container = new ContainerBuilder;
-			$container->addDefinitions(realpath(__DIR__ . '/../config.php'));
+			$container->addDefinitions($this->containerDefinitions);
 			$this->container = $container->build();
 		}
 
 		return $this->container;
+	}
+
+	/**
+	 * Return application base path
+	 *
+	 * @return string
+	 */
+	public function getBasePath()
+	{
+		return $this->basePath;
 	}
 
 	/**
@@ -90,6 +108,31 @@ class Application {
 		$whoops = new \Whoops\Run;
 		$whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
 		$whoops->register();
+	}
+
+	/**
+	 * Setup container definitions
+	 *
+	 * @return void
+	 */
+	private function setupBaseContainerDefinitions()
+	{
+		$this->containerDefinitions = [];
+	}
+
+	/**
+	 * Add container definitions
+	 *
+	 * @param array $definition
+	 * @return void
+	 */
+	public function addContainerDefinitions($definitions)
+	{
+		if (!is_array($definitions) && is_string($definitions)) {
+			$definitions = require $definitions;
+		}
+
+		$this->containerDefinitions += $definitions;
 	}
 
 	/**
