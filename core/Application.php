@@ -68,6 +68,7 @@ class Application
     {
         $this->bootstrapRouter();
         $this->bootstrapRequest();
+        $this->bootstrapExceptionHandler();
     }
 
     /**
@@ -188,6 +189,18 @@ class Application
     }
 
     /**
+     * Bootstrap whoops exception handler
+     *
+     * @return void
+     */
+    private function bootstrapExceptionHandler()
+    {
+        $whoops = new \Whoops\Run;
+        $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+        $whoops->register();
+    }
+
+    /**
      * Run application
      *
      * @return void
@@ -203,7 +216,7 @@ class Application
             return $this->container()->call($response[0], $response[1]);
         }
 
-        echo "404 Not Found";
+        throw new \Exception("404 Not Found", 1);        
 
         exit();
     }

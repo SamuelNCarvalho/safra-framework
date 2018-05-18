@@ -13,7 +13,8 @@
     "require": {
 		"vlucas/phpdotenv": "^2.4",
 		"php-di/php-di": "^6.0",
-		"twig/twig": "^2.4"
+		"twig/twig": "^2.4",
+		"filp/whoops": "^2.1"
 	},
 	"autoload": {
         "psr-4": {
