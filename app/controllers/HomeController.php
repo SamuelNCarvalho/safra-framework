@@ -2,10 +2,11 @@
 
 namespace Controllers;
 
-class HomeController extends Controller
+class HomeController
 {
-	public function index()
+    public function index()
     {
-		echo $this->twig->render('home.twig');
+        $welcomeMessage = 'Welcome to '.app()->name();
+        view('home.twig', compact('welcomeMessage'));
     }
 }

@@ -3,54 +3,52 @@
 namespace Core;
 
 use DI\ContainerBuilder;
-use FastRoute\RouteCollector;
-use FastRoute\Dispatcher;
 
-class Application {
-
-	/**
+class Application
+{
+     /**
      * The current globally available container (if any).
      *
      * @var static
      */
     protected static $instance;
 
-	/**
-	 * Base path of application
-	 *
-	 * @var string
-	 */
-	private $basePath;
+    /**
+     * Application base path
+     *
+     * @var string
+     */
+    private $basePath;
 
-	/**
-	 * DI Container
-	 *
-	 * @var DI\ContainerBuilder
-	 */
-	private $container;
+    /**
+     * Application container path
+     *
+     * @var string
+     */
+    private $containerDefinitionsFilePath;
 
-	/**
-	 * DI Container definitions
-	 *
-	 * @var array
-	 */
-	private $containerDefinitions = [];
+    /**
+     * DI Container
+     *
+     * @var ContainerBuilder
+     */
+    private $container;
 
-	/**
-	 * Router
-	 *
-	 * @var Router
-	 */
-	private $router;
+    /**
+     * Router class
+     *
+     * @var Router
+     */
+    public $router;
 
-	private function __construct()
-	{
-		$this->bootstrapExceptionHandler();
-		$this->bootstrapORM();
-	}
+    /**
+     * Request class
+     *
+     * @var Request
+     */
+    public $request;
 
-
-	/**
+    /**
      * Set the globally available instance of the container.
      *
      * @return static
@@ -60,138 +58,158 @@ class Application {
         if (is_null(static::$instance)) {
             static::$instance = new static;
         }
-
         return static::$instance;
     }
 
-	/**
-	 * Bootstrap DI container
-	 *
-	 * @return void
-	 */
-	public function container()
-	{
-		if (is_null($this->container)) {
-			$container = new ContainerBuilder;
-			$this->setupBaseContainerDefinitions();
-			$container->addDefinitions($this->containerDefinitions);
-			$this->container = $container->build();
-		}
+    /**
+     * Constructor method
+     */
+    private function __construct()
+    {
+        $this->bootstrapRouter();
+        $this->bootstrapRequest();
+    }
 
-		return $this->container;
-	}
+    /**
+     * Set application base path
+     *
+     * @param string $basePath
+     * @return void
+     */
+    public function setBasePath($basePath)
+    {
+        $this->basePath = $basePath;
+    }
 
-	/**
-	 * Set base path
-	 *
-	 * @param string $basePath
-	 * @return void
-	 */
-	public function setBasePath($basePath)
-	{
-		$this->basePath = $basePath;
-	}
+    /**
+     * Return application base path
+     *
+     * @return string
+     */
+    public function getBasePath()
+    {
+        return $this->basePath;
+    }
 
-	/**
-	 * Return application base path
-	 *
-	 * @return string
-	 */
-	public function getBasePath()
-	{
-		return $this->basePath;
-	}
+    /**
+     * Set container definitions path
+     *
+     * @param string $containerDefinitionsFilePath
+     * @return void
+     */
+    public function setContainerDefinitionsFilePath($containerDefinitionsFilePath)
+    {
+        $this->containerDefinitionsFilePath = $containerDefinitionsFilePath;
+    }
 
-	/**
-	 * Bootstrap router
-	 *
-	 * @return void
-	 */
-	private function router()
-	{
-		if (is_null($this->router)) {
-			$dispatcher = \FastRoute\simpleDispatcher(function (RouteCollector $route) {
-				require $this->getBasePath().'/app/routes.php';
-			});
+    /**
+     * Return container definitions path
+     *
+     * @return string
+     */
+    private function getContainerDefinitionsFilePath()
+    {
+        return $this->containerDefinitionsFilePath;
+    }
 
-			$this->router = $dispatcher->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
-		}
+    /**
+     * Return application name
+     *
+     * @return string
+     */
+    public function name()
+    {
+        return config('app.name');
+    }
 
-		return $this->router;
-	}
+    /**
+     * Lazy load DI Container
+     *
+     * @return ContainerBuilder
+     */
+    public function container()
+    {
+        if (is_null($this->container)) {
+            $containerBuilder = new ContainerBuilder;
 
-	/**
-	 * Bootstrap ORM
-	 *
-	 * @return void
-	 */
-	private function bootstrapORM()
-	{
-		$con = new \PDO(getenv('DB_DRIVER'). ':host=' . getenv('DB_HOST') . ';dbname=' . getenv('DB_NAME'), getenv('DB_USER'), getenv('DB_PASSWORD'));
-		\TORM\Connection::setConnection($con);
-		\TORM\Connection::setDriver(getenv('DB_DRIVER'));
-	}
+            if (empty($this->containerDefinitionsFilePath)){
+                $definitions = [];
+            } else {
+                $definitions = $this->containerDefinitionsFilePath;
+            }
 
-	/**
-	 * Bootstrap Whoops exception handler
-	 *
-	 * @return void
-	 */
-	private function bootstrapExceptionHandler()
-	{
-		$whoops = new \Whoops\Run;
-		$whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
-		$whoops->register();
-	}
+            $containerBuilder->addDefinitions($definitions);
+            $this->container = $containerBuilder->build();
+        }
 
-	/**
-	 * Setup container definitions
-	 *
-	 * @return void
-	 */
-	private function setupBaseContainerDefinitions()
-	{
-		$this->containerDefinitions += [];
-	}
+        return $this->container;
+    }
 
-	/**
-	 * Add container definitions
-	 *
-	 * @param array $definition
-	 * @return void
-	 */
-	public function addContainerDefinitions($definitions)
-	{
-		if (!is_array($definitions) && is_string($definitions)) {
-			$definitions = require $definitions;
-		}
+    /**
+     * Return DI Container definition
+     *
+     * @param any $param
+     * @return any
+     */
+    public function get($param)
+    {
+        return $this->container()->get($param);
+    }
 
-		$this->containerDefinitions += $definitions;
-	}
+    /**
+     * Set DI Container definition
+     *
+     * @param any $param
+     * @return void
+     */
+    public function set($key, $value)
+    {
+        $this->container()->set($key, $value);
+    }
 
-	/**
-	 * Return response
-	 *
-	 * @return void
-	 */
-	public function response()
-	{
-		switch ($this->router()[0]) {
-			case Dispatcher::NOT_FOUND:
-				echo '404 Not Found';
-				break;
+    /**
+     * Bootstrap router class
+     *
+     * @return void
+     */
+    private function bootstrapRouter()
+    {
+        $this->router = new Router;
+    }
 
-			case Dispatcher::METHOD_NOT_ALLOWED:
-				echo '405 Method Not Allowed';
-				break;
+    /**
+     * Bootstrap request class
+     *
+     * @return void
+     */
+    private function bootstrapRequest()
+    {
+        $this->request = new Request;
+    }
 
-			case Dispatcher::FOUND:
-				$handler = $this->router()[1];
-				$vars = $this->router()[2];
+    /**
+     * Run application
+     *
+     * @return void
+     */
+    public function run()
+    {
+        $response = $this->router->run(
+            $this->request->method(),
+            $this->request->uri()
+        );
 
-				$this->container()->call($handler, $vars);
-				break;
-		}
-	}
+        if (!empty($response)) {
+            return $this->container()->call($response[0], $response[1]);
+        }
 
+        echo "404 Not Found";
+
+        exit();
+    }
+
+
+    private function __clone()
+    {
+    }
 }
